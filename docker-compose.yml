@@ -17,11 +17,13 @@ services:
     volumes:
       - ./:/app/
 
-    command: cargo run --bin=replicator -- --config=fixtures/example_config.yml -p 9445 -h 0.0.0.0
+    environment:
+      RUST_LOG: debug
+
+    command: cargo run --bin=kafka-replicator -- -h 0.0.0.0 examples/example-config.yml
 
     ports:
       - 9444:9444
-      - 9445:9445
 
     networks:
       replicator_rust_env_network:
@@ -60,7 +62,7 @@ services:
     environment:
       #KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_CREATE_TOPICS: "replicator-logs:1:1,topic1:3:1,topic2:3:1,topic3:3:1"
+      KAFKA_CREATE_TOPICS: "topic1:3:1,topic2:3:1,topic3:3:1"
       KAFKA_ZOOKEEPER_CONNECT: replicator-zookeeper-1.test:2181
       # BROKER_ID_COMMAND: "hostname | awk -F'-' '{print $$2}'"
       KAFKA_BROKER_ID: 1
@@ -85,7 +87,7 @@ services:
     environment:
       #KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_CREATE_TOPICS: "replicator-logs:1:1,topic1:3:1,topic2:3:1,topic3:3:1"
+      KAFKA_CREATE_TOPICS: "topic1:3:1,topic2:3:1,topic3:3:1"
       KAFKA_ZOOKEEPER_CONNECT: replicator-zookeeper-2.test:2181
       # BROKER_ID_COMMAND: "hostname | awk -F'-' '{print $$2}'"
       KAFKA_BROKER_ID: 2
