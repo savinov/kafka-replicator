@@ -2,12 +2,13 @@ clusters:
   - name: cluster_1
     hosts:
       #- replicator-kafka-1:9092
-      #- replicator-kafka-1:9092
-      - kafka-replicator-replicator_kafka_1-1:9092
+      #- kafka-replicator-replicator_kafka_1-1:9092
+      - replicator-kafka-1.test:9094
   - name: cluster_2
     hosts:
-      - kafka-replicator-replicator_kafka_2-1:9092
       #- replicator-kafka-2:9092
+      #- kafka-replicator-replicator_kafka_2-1:9092
+      - replicator-kafka-2.test:9194
 
 clients:
   - client: cl_1_client_1
