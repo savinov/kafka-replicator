@@ -1,4 +1,4 @@
-version: "3.7"
+#version: "3.7"
 
 services:
   app:
@@ -11,16 +11,20 @@ services:
     depends_on:
 #      - replicator_zookeeper_1
 #      - replicator_zookeeper_2
-      - replicator_kafka_1
-      - replicator_kafka_2
+      replicator_kafka_1:
+          condition: service_healthy
+      replicator_kafka_2:
+          condition: service_healthy
 
     volumes:
-      - ./:/app/
+#      - ./:/app/
+      - ./examples/:/app/examples
+      - ssl-certs:/ssl-certs
 
     environment:
       RUST_LOG: debug
 
-    command: cargo run --bin=kafka-replicator -- -h 0.0.0.0 examples/example-config.yml
+    command: cargo run --offline --frozen --bin=kafka-replicator -- -h 0.0.0.0 examples/example-config.yml
 
     ports:
       - 9444:9444
@@ -90,6 +94,9 @@ services:
         PLAINTEXT_PORT: 9094
         BROKER_ID: 101
 
+      volumes:
+        - ssl-certs:/ssl-certs
+
       networks:
         replicator_rust_env_network:
           aliases:
@@ -135,6 +142,9 @@ services:
       PLAINTEXT_PORT: 9194
       BROKER_ID: 102
 
+    volumes:
+      - ssl-certs:/ssl-certs
+
     networks:
       replicator_rust_env_network:
         aliases:
@@ -160,3 +170,6 @@ services:
 
 networks:
   replicator_rust_env_network:
+
+volumes:
+  ssl-certs:

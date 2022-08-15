@@ -18,8 +18,10 @@ RUN apt-get update -y && apt-get install -y \
 
 # RUN rustup toolchain install nightly
 
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+
 WORKDIR /app/
+COPY . /app
 
 RUN cd /app/
-
-ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+RUN cargo build

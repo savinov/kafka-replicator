@@ -3,21 +3,32 @@ clusters:
     hosts:
       #- replicator-kafka-1:9092
       #- kafka-replicator-replicator_kafka_1-1:9092
-      - replicator-kafka-1.test:9094
+      - replicator-kafka-1.test:9093
   - name: cluster_2
     hosts:
       #- replicator-kafka-2:9092
       #- kafka-replicator-replicator_kafka_2-1:9092
-      - replicator-kafka-2.test:9194
+      - replicator-kafka-2.test:9193
 
 clients:
   - client: cl_1_client_1
     cluster: cluster_1
     config: # optional
-       message.timeout.ms: 5000
-       auto.offset.reset: earliest
+      message.timeout.ms: 5000
+      auto.offset.reset: earliest
+      security.protocol: SSL
+      ssl.keystore.location: /ssl-certs/replicator-kafka-1.test/client.keystore.p12
+      ssl.key.password: password
+      ssl.keystore.password: password
+      ssl.ca.location: /ssl-certs/replicator-kafka-1.test/ca-cert
   - client: cl_2_client_1
     cluster: cluster_2
+    config: # optional
+      security.protocol: SSL
+      ssl.keystore.location: /ssl-certs/replicator-kafka-2.test/client.keystore.p12
+      ssl.key.password: password
+      ssl.keystore.password: password
+      ssl.ca.location: /ssl-certs/replicator-kafka-2.test/ca-cert
 
 routes:
   - upstream_client: cl_1_client_1 # Required: source client name from clients section
