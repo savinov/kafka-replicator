@@ -12,9 +12,15 @@ services:
 #      - replicator_zookeeper_1
 #      - replicator_zookeeper_2
       replicator_kafka_1:
-          condition: service_healthy
+        condition: service_healthy
       replicator_kafka_2:
-          condition: service_healthy
+        condition: service_healthy
+      replicator_grafana:
+        condition: service_started
+      replicator_observer:
+        condition: service_started
+      replicator_prometheus:
+        condition: service_started
 
     volumes:
 #      - ./:/app/
@@ -33,6 +39,36 @@ services:
       replicator_rust_env_network:
         aliases:
           - replicator-app.test
+
+
+  replicator_observer:
+    image: replicator
+
+    depends_on:
+      replicator_kafka_1:
+        condition: service_healthy
+      replicator_kafka_2:
+        condition: service_healthy
+      replicator_grafana:
+        condition: service_started
+
+    volumes:
+      - ./examples/:/app/examples
+      - ssl-certs:/ssl-certs
+
+    environment:
+      RUST_LOG: debug
+
+    command: cargo run --offline --frozen --bin=kafka-observer -- examples/example-config.yml -h 0.0.0.0 -p 9445
+
+    ports:
+      - 9445:9445
+
+    networks:
+      replicator_rust_env_network:
+        aliases:
+          - replicator-observer.test
+
 
 #  replicator_zookeeper_1:
 #    image: wurstmeister/zookeeper
@@ -167,6 +203,30 @@ services:
         aliases:
           - replicator-kafkacat-1.test
 
+  replicator_grafana:
+    image: grafana/grafana-enterprise:latest
+
+    ports:
+      - 3000:3000
+
+    networks:
+      replicator_rust_env_network:
+        aliases:
+          - replicator-grafana-1.test
+
+  replicator_prometheus:
+    image: prom/prometheus:latest
+
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+    ports:
+      - 9090:9090
+
+    networks:
+      replicator_rust_env_network:
+        aliases:
+          - replicator-prometheus-1.test
 
 networks:
   replicator_rust_env_network:
