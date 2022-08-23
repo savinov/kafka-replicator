@@ -204,7 +204,7 @@ services:
           - replicator-kafkacat-1.test
 
   replicator_grafana:
-    image: grafana/grafana-enterprise:latest
+    image: grafana/grafana:local
 
     ports:
       - 3000:3000
