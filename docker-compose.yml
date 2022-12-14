@@ -15,11 +15,11 @@ services:
         condition: service_healthy
       replicator_kafka_2:
         condition: service_healthy
+      replicator_prometheus:
+        condition: service_started
       replicator_grafana:
         condition: service_started
       replicator_observer:
-        condition: service_started
-      replicator_prometheus:
         condition: service_started
 
     volumes:
@@ -30,7 +30,7 @@ services:
     environment:
       RUST_LOG: debug
 
-    command: cargo run --offline --frozen --bin=kafka-replicator -- -h 0.0.0.0 examples/example-config.yml
+    command: cargo run --offline --frozen --bin=kafka-replicator -- -h 0.0.0.0 examples/templates.yml
 
     ports:
       - 9444:9444
@@ -49,6 +49,8 @@ services:
         condition: service_healthy
       replicator_kafka_2:
         condition: service_healthy
+      replicator_prometheus:
+        condition: service_started
       replicator_grafana:
         condition: service_started
 
@@ -59,7 +61,7 @@ services:
     environment:
       RUST_LOG: debug
 
-    command: cargo run --offline --frozen --bin=kafka-observer -- examples/example-config.yml -h 0.0.0.0 -p 9445
+    command: cargo run --offline --frozen --bin=kafka-observer -- examples/templates.yml -h 0.0.0.0 -p 9445
 
     ports:
       - 9445:9445

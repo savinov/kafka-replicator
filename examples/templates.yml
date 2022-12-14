@@ -1,0 +1,82 @@
+clusters:
+  - name: cluster_1
+    hosts:
+      - replicator-kafka-1.test:9093
+  - name: cluster_2
+    hosts:
+      - replicator-kafka-2.test:9193
+
+clients:
+  - client: cl_1_client_1
+    cluster: cluster_1
+    config:
+      security.protocol: SSL
+      ssl.keystore.location: /ssl-certs/replicator-kafka-1.test/client.keystore.p12
+      ssl.key.password: password
+      ssl.keystore.password: password
+      ssl.ca.location: /ssl-certs/replicator-kafka-1.test/ca-cert
+  - client: cl_2_client_1
+    cluster: cluster_2
+    config:
+      security.protocol: SSL
+      ssl.keystore.location: /ssl-certs/replicator-kafka-2.test/client.keystore.p12
+      ssl.key.password: password
+      ssl.keystore.password: password
+      ssl.ca.location: /ssl-certs/replicator-kafka-2.test/ca-cert
+
+routes:
+  - name: cluster1_to_cluster2_topic1 # Optional
+    upstream_client: cl_1_client_1 # Required: source client name from clients section
+    downstream_client: cl_2_client_1 # Required: target client name from clients section
+    upstream_topics: # Required: source topics
+      - 'topic1'
+    downstream_topic: 'topic1' # Required: target topics
+    repartitioning_strategy: random # strict_p2p | random
+    default_begin_offset: latest # Optional: earliest | latest
+    upstream_group_id: pipeline_cluster1_to_cluster2 # Option: upstream consumer group id
+    show_progress_interval_secs: 10 # Optional: interval between console output
+    update_metrics_interval_secs: 10 # Optional: interval between prometheus metrics updates
+    upstream_poll_interval_ms: 200 # Optional: interval between upstream poll calls
+
+  - name: cluster1_to_cluster2_topic2
+    upstream_client: cl_1_client_1
+    downstream_client: cl_2_client_1
+    upstream_topics:
+      - 'topic2'
+    downstream_topic: 'topic2'
+    repartitioning_strategy: random
+    default_begin_offset: latest
+    upstream_group_id: pipeline_cluster1_to_cluster2
+    show_progress_interval_secs: 10
+    update_metrics_interval_secs: 10
+    upstream_poll_interval_ms: 200
+
+  - name: cluster1_to_cluster2_topic3
+    upstream_client: cl_1_client_1
+    downstream_client: cl_2_client_1
+    upstream_topics:
+      - 'topic3'
+    downstream_topic: 'topic3'
+    repartitioning_strategy: random
+    default_begin_offset: latest
+    upstream_group_id: pipeline_cluster1_to_cluster2
+    show_progress_interval_secs: 10
+    update_metrics_interval_secs: 10
+    upstream_poll_interval_ms: 200
+
+observers:
+  - client: cl_1_client_1
+    name: cluster1_to_cluster2
+    group_id: pipeline_cluster1_to_cluster2
+    topics:
+      - 'topic1'
+      - 'topic2'
+      - 'topic3'
+    fetch_timeout_secs: 5 # default: 5
+    fetch_interval_secs: 10 # default: 60
+    show_progress_interval_secs: 10 # default: 60
+
+prometheus:
+#  namespace: "app:observer:" # custom prometheus metrics prefix
+  labels:
+    env: local
